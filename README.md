@@ -70,13 +70,13 @@ Provide step-by-step instructions to set up the project locally, emphasizing Mac
 
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/your-repo/project-name.git
-   cd project-name
+   git clone git@github.com:colinalexander/AI-x-Finance-hackathon.git
+   cd AI-x-Finance-hackathon
    ```
 
 2. Install `uv` for environment management (MacOS via Homebrew):  
    ```bash
-   brew install astral-sh/uv/uv
+   brew install uv
    ```
 
 3. Sync the virtual environment provided in the repository:  
