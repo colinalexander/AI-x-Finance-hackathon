@@ -2,11 +2,11 @@
 # **[Project Name]**
 
 ### **Hackathon Details**
-- **Hackathon Name:** [Name of the hackathon]  
-- **Location:** [Physical/virtual location]  
-- **Date:** [Start and end date of the hackathon]  
-- **Website/URL:** [Hackathon link]  
-- **Objective:** [Hackathon theme or goal (if provided)]  
+- **Hackathon Name**: AI x Finance Hackathon - Democratize Intelligence
+- **Location**: AGI House, San Francisco
+- **Date**: Saturday, January 25, 2025, at 11:00 AM PT to Sunday, January 26, 2025, at 9:00 PM PT
+- **Website/URL**: https://partiful.com/e/YJbOeU7POirO2WWRg1ZV
+- **Objective**: The hackathon aims to unite innovative minds to design the future of financial technology by building intelligent systems that bridge the gap between traditional finance and advanced AI.
 
 ---
 
