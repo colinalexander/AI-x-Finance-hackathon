@@ -1,0 +1,12 @@
+[project]
+name = "20250125-ai-x-finance"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "ipython>=8.31.0",
+]
