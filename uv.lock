@@ -1,5 +1,5 @@
 version = 1
-requires-python = ">=3.13"
+requires-python = ">=3.9"
 
 [[package]]
 name = "20250125-ai-x-finance"
@@ -17,16 +17,11 @@ dependencies = [
     { name = "praw" },
     { name = "sqlalchemy" },
     { name = "yfinance" },
-]
-dependencies = [
-    { name = "praw" },
-    { name = "pypst" },
+    { name = "pypst" }
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "ipython" },
-]
+[dev-dependencies]
+ipython = ">=8.31.0"
 
 [package.metadata]
 
