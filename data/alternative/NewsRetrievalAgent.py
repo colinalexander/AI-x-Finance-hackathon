@@ -41,7 +41,7 @@ class GenerateFinancialAnalysis(Workflow):
     web_searcher: Agent = Agent(
         tools=[DuckDuckGo()],
         instructions=[
-            "Given a topic, search for 10 articles and return the 5 most relevant articles.",
+            "Given a topic, search for 15 articles and return all the articles in order of relevancy.",
         ],
         response_model=SearchResults,
     )
