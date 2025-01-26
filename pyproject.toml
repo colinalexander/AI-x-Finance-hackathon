@@ -16,6 +16,8 @@ dependencies = [
     "praw>=7.8.1",
     "sqlalchemy>=2.0.37",
     "yfinance>=0.2.52",
+    "praw>=7.8.1",
+    "pypst>=0.6.1",
 ]
 
 [dependency-groups]
