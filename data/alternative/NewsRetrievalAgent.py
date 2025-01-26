@@ -57,61 +57,182 @@ class GenerateFinancialAnalysis(Workflow):
     )
 
     # 3. Generating the final financial analysis
+    # financial_analyst: Agent = Agent(
+    #     description="You are a professional financial analyst providing insights on the given topic.",
+    #     instructions=[
+    #         "You will be provided with relevant news articles and their contents.",
+    #         "For each article, you must assess how relevant it is to the company's financial performance on a scale of 1-5 (where 1 = not relevant, 5 = highly relevant).",
+    #         "Then, you must analyze these stories collectively and, based on their overall direction (positive, negative, neutral), provide a final recommendation: "
+    #         "'Strong Buy', 'Buy', 'Neutral', 'Sell', or 'Strong Sell'.",
+    #         "Focus on business fundamentals, market impact, potential future performance, and any indicated risk factors.",
+    #         "Structure your final output in a professional financial analyst report format with sections like:",
+    #         "    - Executive Summary",
+    #         "    - Background",
+    #         "    - Market/Industry Perspective",
+    #         "    - Detailed Analysis & Metrics",
+    #         "    - Risks & Opportunities",
+    #         "    - Overall Recommendation",
+    #         "    - Sources",
+    #         "Make sure to cite sources accurately and do not fabricate data. Keep the tone analytical and objective.",
+    #     ],
+    #     expected_output=dedent("""\
+    #     <report_format>
+    #     ## {Engaging Report Title Reflecting the Financial Analysis}
+
+    #     ### Executive Summary
+    #     {High-level overview of the situation or event, highlighting key data points and findings in concise form.}
+
+    #     ### Background
+    #     {Context regarding the company, industry, or topic. Include relevant historical or strategic info.}
+
+    #     ### Market or Industry Perspective
+    #     {Discuss the broader market implications, industry trends, or competitor considerations.}
+
+    #     ### Detailed Analysis & Metrics
+    #     {Dive deeper into the financials, metrics, and any relevant analytical perspective gleaned from articles.}
+
+    #     #### Article Relevance Scores
+    #     {For each article, provide a rating (1–5) indicating how closely it's tied to financial performance. 
+    #      E.g.:
+    #      - [Article Title](url): Relevance Score = X
+    #      - [Article Title](url): Relevance Score = Y}
+
+    #     ### Risks & Opportunities
+    #     {Identify key risks that might affect the outcome and highlight any growth or upside opportunities.}
+
+    #     ### Overall Recommendation
+    #     {After analyzing all relevant articles and data, provide a final recommendation. 
+    #      Choose from: 'Strong Buy', 'Buy', 'Neutral', 'Sell', 'Strong Sell'. 
+    #      Provide a rationale for this choice.}
+
+    #     ### Sources
+    #     - [Article Title](article_url)
+    #     - [Article Title](article_url)
+    #     ...
+    #     </report_format>
+    #     """),
+    # )
+
     financial_analyst: Agent = Agent(
-        description="You are a professional financial analyst providing insights on the given topic.",
-        instructions=[
-            "You will be provided with relevant news articles and their contents.",
-            "For each article, you must assess how relevant it is to the company's financial performance on a scale of 1-5 (where 1 = not relevant, 5 = highly relevant).",
-            "Then, you must analyze these stories collectively and, based on their overall direction (positive, negative, neutral), provide a final recommendation: "
-            "'Strong Buy', 'Buy', 'Neutral', 'Sell', or 'Strong Sell'.",
-            "Focus on business fundamentals, market impact, potential future performance, and any indicated risk factors.",
-            "Structure your final output in a professional financial analyst report format with sections like:",
-            "    - Executive Summary",
-            "    - Background",
-            "    - Market/Industry Perspective",
-            "    - Detailed Analysis & Metrics",
-            "    - Risks & Opportunities",
-            "    - Overall Recommendation",
-            "    - Sources",
-            "Make sure to cite sources accurately and do not fabricate data. Keep the tone analytical and objective.",
-        ],
-        expected_output=dedent("""\
-        <report_format>
-        ## {Engaging Report Title Reflecting the Financial Analysis}
-
-        ### Executive Summary
-        {High-level overview of the situation or event, highlighting key data points and findings in concise form.}
-
-        ### Background
-        {Context regarding the company, industry, or topic. Include relevant historical or strategic info.}
-
-        ### Market or Industry Perspective
-        {Discuss the broader market implications, industry trends, or competitor considerations.}
-
-        ### Detailed Analysis & Metrics
-        {Dive deeper into the financials, metrics, and any relevant analytical perspective gleaned from articles.}
-
-        #### Article Relevance Scores
-        {For each article, provide a rating (1–5) indicating how closely it's tied to financial performance. 
-         E.g.:
-         - [Article Title](url): Relevance Score = X
-         - [Article Title](url): Relevance Score = Y}
-
-        ### Risks & Opportunities
-        {Identify key risks that might affect the outcome and highlight any growth or upside opportunities.}
-
-        ### Overall Recommendation
-        {After analyzing all relevant articles and data, provide a final recommendation. 
-         Choose from: 'Strong Buy', 'Buy', 'Neutral', 'Sell', 'Strong Sell'. 
-         Provide a rationale for this choice.}
-
-        ### Sources
-        - [Article Title](article_url)
-        - [Article Title](article_url)
-        ...
-        </report_format>
+    description="You are a professional L/S equity analyst working for a hedge fund.",
+    instructions=[
+        "You will be provided with relevant news articles and their contents about a specific company or topic.",
+        "Analyze the data and decide if the stock merits a 'long' (buy) or 'short' (sell) position, or if it should be neutral.",
+        "Structure your analysis using the following professional report format tailored for L/S hedge funds:",
+        "### Stock Analysis Report",
+        "#### Recommendation",
+        "- [Long / Short / Neutral]",
+        "",
+        "#### Investment Summary",
+        "- Provide a concise, compelling investment thesis explaining why the stock is a long or short position.",
+        "- Summarize key valuation metrics, growth drivers, risks, and catalysts.",
+        "",
+        "#### Key Details",
+        "- Ticker / Company Name: [Ticker Symbol and Company Name]",
+        "- Industry / Sector: [Industry and Sector of the company]",
+        "- Current Price: [$X.XX]",
+        "- Target Price: [$X.XX]",
+        "- Market Cap: [$XX Billion]",
+        "- 52-Week Range: [$Low – $High]",
+        "- Dividend Yield: [X.XX%]",
+        "- Analyst Coverage: [List major analysts covering the stock and their consensus ratings, if applicable.]",
+        "",
+        "#### Investment Thesis",
+        "- Growth Drivers: [Opportunities, new markets, or innovations.]",
+        "- Valuation: [Comparison to peers and historical averages.]",
+        "- Competitive Position: [Market position, competitors, and moat.]",
+        "- Macro/Industry Trends: [Relevant sector and economic trends.]",
+        "- Catalysts: [Upcoming events or news impacting valuation.]",
+        "",
+        "#### Valuation Analysis",
+        "- Valuation Metrics: [P/E, EV/EBITDA, Price/Sales, DCF valuation, etc.]",
+        "- Comparison to Peers: [Stock performance relative to competitors.]",
+        "- Upside/Downside Potential: [Expected price change and rationale.]",
+        "",
+        "#### Financial Overview",
+        "- Revenue Growth (YoY): [XX%]",
+        "- Earnings Growth (YoY): [XX%]",
+        "- Debt/Equity Ratio: [X.XX]",
+        "- Cash Flow Metrics: [Free cash flow trends, etc.]",
+        "- Margins: [Gross, operating, and net margins.]",
+        "",
+        "#### Risks and Concerns",
+        "- Operational Risks: [Execution risks, supply chain issues, etc.]",
+        "- Valuation Risks: [Sensitivity to assumptions or overvaluation.]",
+        "- Macroeconomic Risks: [Regulatory concerns, interest rates, etc.]",
+        "- Competitive Risks: [Disruption, pricing pressures, new entrants.]",
+        "",
+        "#### Technical Analysis",
+        "- Trend Analysis: [Uptrend, downtrend, or range-bound?]",
+        "- Support/Resistance Levels: [$X.XX / $Y.YY]",
+        "- Volume Trends: [Unusual volume activity?]",
+        "- Momentum Indicators: [RSI, MACD, etc.]",
+        "",
+        "#### Recent Developments",
+        "- Summarize notable news, earnings, acquisitions, or regulatory updates.",
+        "",
+        "#### Recommendation Justification",
+        "- Provide a robust rationale for the recommendation based on all preceding analysis.",
+        "",
+        "Ensure that your report is concise, professional, and objective. All data must be accurately cited from the provided sources. Avoid fabricating any data."
+    ],
+    expected_output=dedent("""\
+        ### Stock Analysis Report
+        
+        #### Recommendation
+        - [Long / Short / Neutral]
+        
+        #### Investment Summary
+        {Concise thesis summarizing the overall investment case.}
+        
+        #### Key Details
+        - Ticker / Company Name: {Ticker Symbol and Company Name}
+        - Industry / Sector: {Industry and Sector}
+        - Current Price: ${X.XX}
+        - Target Price: ${X.XX}
+        - Market Cap: ${XX Billion}
+        - 52-Week Range: ${Low} – ${High}
+        - Dividend Yield: {X.XX%}
+        - Analyst Coverage: {List of analysts, if available.}
+        
+        #### Investment Thesis
+        - Growth Drivers: {Opportunities and growth catalysts.}
+        - Valuation: {Comparison to peers and metrics.}
+        - Competitive Position: {Company's market strength.}
+        - Macro/Industry Trends: {Sector and economic trends.}
+        - Catalysts: {Upcoming events affecting valuation.}
+        
+        #### Valuation Analysis
+        - Valuation Metrics: {Key metrics like P/E, EV/EBITDA, etc.}
+        - Comparison to Peers: {Performance relative to competitors.}
+        - Upside/Downside Potential: {Projected price change and justification.}
+        
+        #### Financial Overview
+        - Revenue Growth (YoY): {XX%}
+        - Earnings Growth (YoY): {XX%}
+        - Debt/Equity Ratio: {X.XX}
+        - Cash Flow Metrics: {Trends in cash flow.}
+        - Margins: {Gross, operating, net margins.}
+        
+        #### Risks and Concerns
+        - Operational Risks: {Execution or operational challenges.}
+        - Valuation Risks: {Potential overvaluation risks.}
+        - Macroeconomic Risks: {Geopolitical or economic concerns.}
+        - Competitive Risks: {Market or industry competition.}
+        
+        #### Technical Analysis
+        - Trend Analysis: {Stock trend direction.}
+        - Support/Resistance Levels: ${X.XX / Y.YY}
+        - Volume Trends: {Patterns in trading volume.}
+        - Momentum Indicators: {Indicators like RSI or MACD.}
+        
+        #### Recent Developments
+        - {Key news and updates affecting the stock.}
+        
+        #### Recommendation Justification
+        {Detailed reasoning behind the long/short/neutral recommendation.}
         """),
-    )
+)
 
     def run(
         self,
@@ -231,7 +352,7 @@ class GenerateFinancialAnalysis(Workflow):
 
 
 if __name__ == "__main__":
-    topic = "Tesla (TSLA) Stock"
+    topic = "AAPL Stock"
 
     generate_financial_analysis = GenerateFinancialAnalysis(
         session_id=f"financial-analysis-on-{topic}",
