@@ -1,14 +1,14 @@
 import asyncio
+import os
 import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import mplfinance as mpf
-from typing import Tuple
+from typing import Tuple, List
 from gpt_research import custom_report
 from data.alternative import NewsRetrievalAgent
 from stock_analyst import CompanyAnalystAgent
-from data.alternative.NewsRetrievalAgent import NewsArticle, ScrapedArticle, Se
 from phi.agent import Agent
 from phi.workflow import Workflow, RunResponse, RunEvent
 from phi.storage.workflow.sqlite import SqlWorkflowStorage
@@ -17,9 +17,8 @@ from phi.tools.newspaper4k import Newspaper4k
 from phi.utils.pprint import pprint_run_response
 from phi.utils.log import logger
 
-
 class StockSectorDataPresentationAgent:
-    def __init__(self, company, ticker, sector, ranking: Tuple):
+    def __init__(self, company, ticker, sector, ranking, save_directory):
         self.company = company
         self.ticker = ticker
         self.sector = sector
@@ -28,14 +27,17 @@ class StockSectorDataPresentationAgent:
         self.stock_analyst = CompanyAnalystAgent(company, ticker)
         self.company_data = None
         self.sector_data = None
+        self.directory = save_directory
 
     async def find_best_and_worst_stocks(self):
         research_query = f"Analyze the performance of all stocks in the {self.sector} sector over the past year."
         custom_query = f"Rank the top {self.top_ranking} best-performing stocks and the bottom {self.bottom_ranking} worst-performing stocks based on their price returns over the past year. Provide the results in a clear format with the stock ticker, company name, and percentage return."
         report = await custom_report(
             research_query=research_query,
-            custom_query=custom_query
+            custom_query=custom_query,
+            save_path=self.directory
         )
+
         print(f"Best {self.top_ranking} Stocks:")
         print(report.content)
         print(f"\nWorst {self.bottom_ranking} Stocks:")
@@ -185,35 +187,298 @@ class StockSectorDataPresentationAgent:
         plt.show()
         plt.close()
 
-    def stock_perfomer_comp_charts(self):
-        pass
+
+class SectorLSStrategy:
+    def __init__(self, report_path):
+        self.report_path = report_path
+
+    async def generate_LS_strategy_XLF(self):
+        """
+        First first the top N and bottom N performers and long top N and short
+        the bottom N - present the results clearly with technical indicators and 
+        quantitative factors
+        """
+
+        name_ticker_list = [
+        ("NVIDIA", "NVDA"),
+        ("Apple", "AAPL"),
+        ("Microsoft", "MSFT"),
+        ("Broadcom", "AVGO"),
+        ("Salesforce", "CRM"),
+        ("Oracle", "ORCL"),
+        ("Cisco Systems", "CSCO"),
+        ("ServiceNow", "NOW"),
+        ("Accenture", "ACN"),
+        ("IBM", "IBM"),
+        ("Advanced Micro Devices", "AMD"),
+        ("Qualcomm", "QCOM"),
+        ("Adobe", "ADBE"),
+        ("Texas Instruments", "TXN"),
+        ("Intuit", "INTU"),
+        ("Palantir", "PLTR"),
+        ("Applied Materials", "AMAT"),
+        ("Arista Networks", "ANET"),
+        ("Palo Alto Networks", "PANW"),
+        ("Micron Technology", "MU"),
+        ("Analog Devices", "ADI"),
+        ("Lam Research", "LRCX"),
+        ("KLA Corporation", "KLAC"),
+        ("Amphenol", "APH"),
+        ("Intel", "INTC"),
+        ("Cadence Design Systems", "CDNS"),
+        ("CrowdStrike", "CRWD"),
+        ("Synopsys", "SNPS"),
+        ("Motorola Solutions", "MSI"),
+        ("Autodesk", "ADSK"),
+        ("Fortinet", "FTNT"),
+        ("Roper Technologies", "ROP"),
+        ("NXP Semiconductors", "NXPI"),
+        ("Workday", "WDAY"),
+        ("TE Connectivity", "TEL"),
+        ("Fair Isaac Corporation (FICO)", "FICO"),
+        ("Corning", "GLW"),
+        ("Gartner", "IT"),
+        ("Cognizant", "CTSH"),
+        ("Dell Technologies", "DELL"),
+        ("Monolithic Power Systems", "MPWR"),
+        ("HP", "HPQ"),
+        ("Microchip Technology", "MCHP"),
+        ("Hewlett Packard Enterprise", "HPE"),
+        ("ANSYS", "ANSS"),
+        ("Keysight Technologies", "KEYS"),
+        ("GoDaddy", "GDDY"),
+        ("CDW Corporation", "CDW"),
+        ("NetApp", "NTAP"),
+        ("Tyler Technologies", "TYL"),
+        ("Teledyne Technologies", "TDY"),
+        ("ON Semiconductor", "ON"),
+        ("Western Digital", "WDC"),
+        ("Seagate Technology", "STX"),
+        ("PTC", "PTC"),
+        ("Zebra Technologies", "ZBRA"),
+        ("Teradyne", "TER"),
+        ("Jabil", "JBL"),
+        ("Trimble", "TRMB"),
+        ("First Solar", "FSLR"),
+        ("VeriSign", "VRSN"),
+        ("Super Micro Computer", "SMCI"),
+        ("F5 Networks", "FFIV"),
+        ("Genesis Energy", "GEN"),
+        ("Skyworks Solutions", "SWKS"),
+        ("Akamai Technologies", "AKAM"),
+        ("EPAM Systems", "EPAM"),
+        ("Juniper Networks", "JNPR"),
+        ("Enphase Energy", "ENPH"),
+        ("Xilinx", "XAKH25")
+    ]
+
+        for ticker in name_ticker_list:
+            company_name = ticker[0]
+            ticker_val = ticker[1]
+
+            research_query = f"Analyze the performance of the stock in the f{company_name} over the past year."
+            custom_query = f"Rank the performance of the stock and a clear analyst recommendation for the "
+            
+            report = await custom_report(
+                research_query=research_query,
+                custom_query=custom_query,
+                save_path=self.report_path
+            )
+
+            print(f"Company {company_name} Analyst Recommendation:")
+            print(report.content)
+    
+    async def develop_LS_strategy(self, directory):
+        process = []
+
+        report_texts = []
+        for filename in os.listdir(directory):
+            if filename.endswith(".txt"):
+                file_path = os.path.join(directory, filename)
+                with open(file_path, "r") as file:
+                    report_texts.append(file.read())
+
+        combined_reports = "\n\n".join(report_texts)
+
+        ls_agent = """
+                    
+        """
 
 
+import asyncio
+import os
+import json
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import mplfinance as mpf
+from typing import Dict, Iterator
+from phi.agent import Agent
+from phi.workflow import Workflow, RunResponse, RunEvent
+from phi.storage.workflow.sqlite import SqlWorkflowStorage
+from phi.utils.pprint import pprint_run_response
+from phi.utils.log import logger
 
 
+class GenerateLSFromFiles(Workflow):
+    """
+    A workflow that generates a financial analysis report using .txt files from a directory.
+    """
+
+    # Financial Analyst Agent
+    financial_analyst: Agent = Agent(
+        description="You are a professional L/S equity analyst working for a hedge fund.",
+        instructions=[
+            "You will be provided with relevant news articles and their contents about a specific company or topic.",
+            "Analyze the data and decide the top 5 stocks to long and 5 stocks to short based on the file data. "
+            "Decide if the stock merits a 'long' (buy), 'short' (sell), or 'neutral' position.",
+            "Structure your analysis using the following professional report format tailored for L/S hedge funds:",
+            "",
+            "### Stock Analysis Report",
+            "#### Recommendation",
+            "- [Long / Short / Neutral]",
+            "",
+            "#### Investment Summary",
+            "- Provide a concise, compelling investment thesis explaining why the stock is a long or short position.",
+            "- Summarize key valuation metrics, growth drivers, risks, and catalysts.",
+            "",
+            "#### Key Details",
+            "- Ticker / Company Name: [Ticker Symbol and Company Name]",
+            "- Industry / Sector: [Industry and Sector of the company]",
+            "- Current Price: [$X.XX]",
+            "- Target Price: [$X.XX]",
+            "- Market Cap: [$XX Billion]",
+            "- 52-Week Range: [$Low – $High]",
+            "- Dividend Yield: [X.XX%]",
+            "- Analyst Coverage: [List major analysts covering the stock and their consensus ratings, if applicable.]",
+            "",
+            "#### Investment Thesis",
+            "- Growth Drivers: [Opportunities, new markets, or innovations.]",
+            "- Valuation: [Comparison to peers and historical averages.]",
+            "- Competitive Position: [Market position, competitors, and moat.]",
+            "- Macro/Industry Trends: [Relevant sector and economic trends.]",
+            "- Catalysts: [Upcoming events or news impacting valuation.]",
+            "",
+            "#### Valuation Analysis",
+            "- Valuation Metrics: [P/E, EV/EBITDA, Price/Sales, DCF valuation, etc.]",
+            "- Comparison to Peers: [Stock performance relative to competitors.]",
+            "- Upside/Downside Potential: [Expected price change and rationale.]",
+            "",
+            "#### Financial Overview",
+            "- Revenue Growth (YoY): [XX%]",
+            "- Earnings Growth (YoY): [XX%]",
+            "- Debt/Equity Ratio: [X.XX]",
+            "- Cash Flow Metrics: [Free cash flow trends, etc.]",
+            "- Margins: [Gross, operating, and net margins.]",
+            "",
+            "#### Risks and Concerns",
+            "- Operational Risks: [Execution risks, supply chain issues, etc.]",
+            "- Valuation Risks: [Sensitivity to assumptions or overvaluation.]",
+            "- Macroeconomic Risks: [Regulatory concerns, interest rates, etc.]",
+            "- Competitive Risks: [Disruption, pricing pressures, new entrants.]",
+            "",
+            "#### Technical Analysis",
+            "- Trend Analysis: [Uptrend, downtrend, or range-bound?]",
+            "- Support/Resistance Levels: [$X.XX / $Y.YY]",
+            "- Volume Trends: [Unusual volume activity?]",
+            "- Momentum Indicators: [RSI, MACD, etc.]",
+            "",
+            "#### Recent Developments",
+            "- Summarize notable news, earnings, acquisitions, or regulatory updates.",
+            "",
+            "#### Recommendation Justification",
+            "- Provide a robust rationale for the recommendation based on all preceding analysis.",
+            "",
+            "Ensure that your report is concise, professional, and objective. All data must be accurately cited from the provided sources. Avoid fabricating any data."
+        ],
+    )
+
+    def run(
+        self,
+        directory: str,
+        topic: str,
+        use_cached_report: bool = False
+    ) -> Iterator[RunResponse]:
+        """
+        Generate a financial analysis report using .txt files from a directory.
+
+        Args:
+            directory (str): Path to the directory containing performance report files.
+            topic (str): The topic for which to generate the financial analysis.
+            use_cached_report (bool, optional): Whether to return a previously generated report. Defaults to False.
+
+        Returns:
+            Iterator[RunResponse]: A stream of objects containing the generated report or status updates.
+        """
+        logger.info(f"Generating a financial analysis on: {topic}")
+
+        if use_cached_report and "reports" in self.session_state:
+            logger.info("Checking if cached financial analysis exists")
+            for cached_report in self.session_state["reports"]:
+                if cached_report["topic"] == topic:
+                    yield RunResponse(
+                        run_id=self.run_id,
+                        event=RunEvent.workflow_completed,
+                        content=cached_report["report"],
+                    )
+                    return
+
+        logger.info(f"Reading .md files from directory: {directory}")
+        scraped_articles = []
+        for filename in os.listdir(directory):
+            if filename.endswith(".md"):
+                file_path = os.path.join(directory, filename)
+                with open(file_path, "r") as file:
+                    content = file.read()
+                scraped_articles.append({
+                    "title": filename,
+                    "url": file_path,
+                    "content": content
+                })
+
+        if not scraped_articles:
+            yield RunResponse(
+                run_id=self.run_id,
+                event=RunEvent.workflow_completed,
+                content=f"No .md files found in directory: {directory}",
+            )
+            return
+
+        # Step 3: Generate the final financial analysis
+        logger.info("Generating final financial analysis report")
+        financial_analyst_input = {
+            "topic": topic,
+            "articles": scraped_articles,
+        }
+
+        # Stream responses from the financial_analyst agent
+        yield from self.financial_analyst.run(json.dumps(financial_analyst_input, indent=4), stream=True)
+
+        # Cache the final report
+        if "reports" not in self.session_state:
+            self.session_state["reports"] = []
+        self.session_state["reports"].append(
+            {"topic": topic, "report": self.financial_analyst.run_response.content}
+        )
 
 
-        
+if __name__ == "__main__":
+    directory = "./research_reports"  
+    topic = "Sector Performance Analysis"
 
+    generate_financial_analysis = GenerateLSFromFiles(
+        session_id=f"financial-analysis-on-{topic}",
+        storage=SqlWorkflowStorage(
+            table_name="financial_analysis_workflows",
+            db_file="tmp/workflows.db",
+        ),
+    )
 
+    report_stream: Iterator[RunResponse] = generate_financial_analysis.run(
+        directory=directory, 
+        topic=topic, 
+        use_cached_report=False
+    )
 
-
-async def main():
-    company = "Apple Inc."
-    ticker = "AAPL"
-    sector = "XLK"
-    ranking = (25, 25)
-    agent = StockSectorDataPresentationAgent(company, ticker, sector, ranking)
-    agent.fetch_data("1y")
-    # agent.beta_correlation_chart()
-    # agent.plot_historical_price()
-    # agent.plot_candlestick_chart()
-    # agent.plot_volume()
-    agent.plot_moving_averages()
-    # agent.monthly_returns_comparison_chart()
-    # agent.daily_returns_distribution_chart()
-    agent.rolling_volatility_chart(20)
-
-
-
-asyncio.run(main())
+    pprint_run_response(report_stream, markdown=True)
