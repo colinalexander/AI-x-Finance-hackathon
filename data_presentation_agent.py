@@ -8,6 +8,15 @@ from typing import Tuple
 from gpt_research import custom_report
 from data.alternative import NewsRetrievalAgent
 from stock_analyst import CompanyAnalystAgent
+from data.alternative.NewsRetrievalAgent import NewsArticle, ScrapedArticle, Se
+from phi.agent import Agent
+from phi.workflow import Workflow, RunResponse, RunEvent
+from phi.storage.workflow.sqlite import SqlWorkflowStorage
+from phi.tools.duckduckgo import DuckDuckGo
+from phi.tools.newspaper4k import Newspaper4k
+from phi.utils.pprint import pprint_run_response
+from phi.utils.log import logger
+
 
 class StockSectorDataPresentationAgent:
     def __init__(self, company, ticker, sector, ranking: Tuple):
@@ -179,6 +188,16 @@ class StockSectorDataPresentationAgent:
     def stock_perfomer_comp_charts(self):
         pass
 
+
+
+
+
+
+        
+
+
+
+
 async def main():
     company = "Apple Inc."
     ticker = "AAPL"
@@ -190,9 +209,11 @@ async def main():
     # agent.plot_historical_price()
     # agent.plot_candlestick_chart()
     # agent.plot_volume()
-    # agent.plot_moving_averages()
+    agent.plot_moving_averages()
     # agent.monthly_returns_comparison_chart()
-    agent.daily_returns_distribution_chart()
+    # agent.daily_returns_distribution_chart()
     agent.rolling_volatility_chart(20)
+
+
 
 asyncio.run(main())
