@@ -1,7 +1,5 @@
-"""GPT Researcher integration with custom report generation."""
-
+import os
 from typing import Any, List, Optional
-
 from gpt_researcher import GPTResearcher
 from langchain.chat_models.base import BaseChatModel
 from langchain.schema import BaseMessage, HumanMessage
@@ -12,6 +10,7 @@ async def get_report(
     query: str,
     report_type: str = "research_report",
     sources: Optional[List[str]] = None,
+    save_path: Optional[str] = None,
 ) -> str:
     """Run GPT Researcher and return results.
 
@@ -19,6 +18,7 @@ async def get_report(
         query: The research query to investigate
         report_type: Type of report to generate (default: research_report)
         sources: Optional list of source URLs to research
+        save_path: Optional path to save the report
 
     Returns:
         The generated research report as a string
@@ -28,6 +28,14 @@ async def get_report(
     )
     await researcher.conduct_research()
     report = await researcher.write_report()
+
+    # Save report to the specified path if provided
+    if save_path:
+        os.makedirs(save_path, exist_ok=True)
+        file_path = os.path.join(save_path, f"{query.replace(' ', '_')}_report.txt")
+        with open(file_path, "w") as file:
+            file.write(report)
+
     return report
 
 
@@ -37,6 +45,7 @@ async def custom_report(
     llm: Optional[BaseChatModel] = None,
     report_type: str = "research_report",
     sources: Optional[List[str]] = None,
+    save_path: Optional[str] = None,
 ) -> BaseMessage | Any:
     """Generate a custom report by applying a custom query to research results.
 
@@ -46,6 +55,7 @@ async def custom_report(
         llm: Optional custom LLM (defaults to OpenAI GPT-4)
         report_type: Type of report to generate (default: research_report)
         sources: Optional list of source URLs to research
+        save_path: Optional path to save the custom report
 
     Returns:
         The generated custom report as a string
@@ -75,4 +85,12 @@ async def custom_report(
 
     # Generate custom report using specified LLM
     response = await chat_model.apredict_messages([HumanMessage(content=prompt)])
+
+    # Save the custom report to the specified path if provided
+    if save_path:
+        os.makedirs(save_path, exist_ok=True)
+        file_path = os.path.join(save_path, f"{research_query.replace(' ', '_')}_custom_report.txt")
+        with open(file_path, "w") as file:
+            file.write(response.content)
+
     return response
