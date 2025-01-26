@@ -1,11 +1,13 @@
-import asyncio
 import os
-import yfinance as yf
-import pandas as pd
+import asyncio
+import json
+from typing import Tuple, List, Dict, Iterator
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import mplfinance as mpf
-from typing import Tuple, List
+import yfinance as yf
+
 from gpt_research import custom_report
 from data.alternative import NewsRetrievalAgent
 from stock_analyst import CompanyAnalystAgent
@@ -16,6 +18,10 @@ from phi.tools.duckduckgo import DuckDuckGo
 from phi.tools.newspaper4k import Newspaper4k
 from phi.utils.pprint import pprint_run_response
 from phi.utils.log import logger
+from phi.model.openai import OpenAIChat
+import base64
+
+
 
 class StockSectorDataPresentationAgent:
     def __init__(self, company, ticker, sector, ranking, save_directory):
@@ -288,37 +294,8 @@ class SectorLSStrategy:
             print(f"Company {company_name} Analyst Recommendation:")
             print(report.content)
     
-    async def develop_LS_strategy(self, directory):
-        process = []
-
-        report_texts = []
-        for filename in os.listdir(directory):
-            if filename.endswith(".txt"):
-                file_path = os.path.join(directory, filename)
-                with open(file_path, "r") as file:
-                    report_texts.append(file.read())
-
-        combined_reports = "\n\n".join(report_texts)
-
-        ls_agent = """
-                    
-        """
-
-
-import asyncio
-import os
-import json
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import mplfinance as mpf
-from typing import Dict, Iterator
-from phi.agent import Agent
-from phi.workflow import Workflow, RunResponse, RunEvent
-from phi.storage.workflow.sqlite import SqlWorkflowStorage
-from phi.utils.pprint import pprint_run_response
-from phi.utils.log import logger
+           
+        
 
 
 class GenerateLSFromFiles(Workflow):
@@ -401,7 +378,7 @@ class GenerateLSFromFiles(Workflow):
         use_cached_report: bool = False
     ) -> Iterator[RunResponse]:
         """
-        Generate a financial analysis report using .txt files from a directory.
+        Generate a financial analysis report using .md files from a directory.
 
         Args:
             directory (str): Path to the directory containing performance report files.
@@ -462,6 +439,22 @@ class GenerateLSFromFiles(Workflow):
             {"topic": topic, "report": self.financial_analyst.run_response.content}
         )
 
+    def image_analysis_agent(self, image_directory):
+        agent = Agent(
+        model=OpenAIChat(id="gpt-4o"),
+        tools=[DuckDuckGo()],
+        markdown=True,
+    )
+
+        with open(image_directory, "rb") as img_file:
+            encoded_image = base64.b64encode(img_file.read()).decode("utf-8")
+
+        agent.print_response(
+            "As a financial analyst, tell me about this graph and give me detailed explanation about the underlying fundamentals.",
+            images=[encoded_image],
+            stream=True,
+        )
+    
 
 if __name__ == "__main__":
     directory = "./research_reports"  
