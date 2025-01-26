@@ -162,9 +162,12 @@ cython_debug/
 # pyenv
 .python-version
 
-# Don't track data
-data/
-
 .DS_Store
 
+
+data/alternative/tmp
+output.typ
+
+
+data/alternative/tmp
 output.typ
