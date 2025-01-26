@@ -22,6 +22,59 @@ from phi.model.openai import OpenAIChat
 import base64
 
 
+import base64
+import os
+from your_library import Agent, OpenAIChat, DuckDuckGo 
+
+class FinancialImageAnalyzer:
+    def __init__(self, model_id="gpt-4o", tools=None):
+        if tools is None:
+            tools = [DuckDuckGo()]
+        self.agent = Agent(
+            model=OpenAIChat(id=model_id),
+            tools=tools,
+            markdown=True,
+        )
+
+    def analyze_image(self, image_path, prompt=None):
+        if prompt is None:
+            prompt = (
+                "As a financial analyst, analyze this graph and provide a detailed explanation of the underlying fundamentals."
+            )
+
+        if not os.path.isfile(image_path):
+            raise FileNotFoundError(f"Image file not found: {image_path}")
+
+        try:
+            # Read and encode the image
+            with open(image_path, "rb") as img_file:
+                encoded_image = base64.b64encode(img_file.read()).decode("utf-8")
+
+            # Get analysis from the agent
+            response = self.agent.print_response(
+                prompt,
+                images=[encoded_image],
+                stream=True,
+            )
+            return response
+        except Exception as e:
+            raise RuntimeError(f"Error analyzing image: {e}")
+
+    def analyze_images_in_directory(self, image_directory, prompt=None):
+        if not os.path.isdir(image_directory):
+            raise NotADirectoryError(f"Directory not found: {image_directory}")
+
+        results = {}
+        for filename in os.listdir(image_directory):
+            file_path = os.path.join(image_directory, filename)
+            if filename.lower().endswith((".png", ".jpg", ".jpeg", ".bmp")):
+                try:
+                    results[filename] = self.analyze_image(file_path, prompt)
+                except Exception as e:
+                    results[filename] = f"Error: {e}"
+        return results
+
+
 
 class StockSectorDataPresentationAgent:
     def __init__(self, company, ticker, sector, ranking, save_directory):
@@ -456,22 +509,43 @@ class GenerateLSFromFiles(Workflow):
         )
     
 
-if __name__ == "__main__":
-    directory = "./research_reports"  
-    topic = "Sector Performance Analysis"
+# if __name__ == "__main__":
+#     directory = "./research_reports"  
+#     topic = "Sector Performance Analysis"
 
-    generate_financial_analysis = GenerateLSFromFiles(
-        session_id=f"financial-analysis-on-{topic}",
-        storage=SqlWorkflowStorage(
-            table_name="financial_analysis_workflows",
-            db_file="tmp/workflows.db",
-        ),
+#     generate_financial_analysis = GenerateLSFromFiles(
+#         session_id=f"financial-analysis-on-{topic}",
+#         storage=SqlWorkflowStorage(
+#             table_name="financial_analysis_workflows",
+#             db_file="tmp/workflows.db",
+#         ),
+#     )
+
+#     report_stream: Iterator[RunResponse] = generate_financial_analysis.run(
+#         directory=directory, 
+#         topic=topic, 
+#         use_cached_report=False
+#     )
+
+#     pprint_run_response(report_stream, markdown=True)
+
+
+
+def image_analysis_agent(image_directory):
+        agent = Agent(
+        model=OpenAIChat(id="gpt-4o"),
+        tools=[DuckDuckGo()],
+        markdown=True,
     )
 
-    report_stream: Iterator[RunResponse] = generate_financial_analysis.run(
-        directory=directory, 
-        topic=topic, 
-        use_cached_report=False
-    )
 
-    pprint_run_response(report_stream, markdown=True)
+        with open(image_directory, "rb") as img_file:
+            encoded_image = base64.b64encode(img_file.read()).decode("utf-8")
+
+        agent.print_response(
+            "As a financial analyst, tell me about this graph and give me detailed explanation about the underlying fundamentals.",
+            images=[encoded_image],
+            stream=True,
+        )
+
+image_analysis_agent('research_reports/charts/AAPL')

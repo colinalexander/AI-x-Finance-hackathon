@@ -28,6 +28,78 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
 # Cache sector stats at module level
 SECTOR_STATS = load_sector_stats()
 
+name_ticker_list = [
+        ("NVIDIA", "NVDA"),
+        ("Apple", "AAPL"),
+        ("Microsoft", "MSFT"),
+        ("Broadcom", "AVGO"),
+        ("Salesforce", "CRM"),
+        ("Oracle", "ORCL"),
+        ("Cisco Systems", "CSCO"),
+        ("ServiceNow", "NOW"),
+        ("Accenture", "ACN"),
+        ("IBM", "IBM"),
+        ("Advanced Micro Devices", "AMD"),
+        ("Qualcomm", "QCOM"),
+        ("Adobe", "ADBE"),
+        ("Texas Instruments", "TXN"),
+        ("Intuit", "INTU"),
+        ("Palantir", "PLTR"),
+        ("Applied Materials", "AMAT"),
+        ("Arista Networks", "ANET"),
+        ("Palo Alto Networks", "PANW"),
+        ("Micron Technology", "MU"),
+        ("Analog Devices", "ADI"),
+        ("Lam Research", "LRCX"),
+        ("KLA Corporation", "KLAC"),
+        ("Amphenol", "APH"),
+        ("Intel", "INTC"),
+        ("Cadence Design Systems", "CDNS"),
+        ("CrowdStrike", "CRWD"),
+        ("Synopsys", "SNPS"),
+        ("Motorola Solutions", "MSI"),
+        ("Autodesk", "ADSK"),
+        ("Fortinet", "FTNT"),
+        ("Roper Technologies", "ROP"),
+        ("NXP Semiconductors", "NXPI"),
+        ("Workday", "WDAY"),
+        ("TE Connectivity", "TEL"),
+        ("Fair Isaac Corporation (FICO)", "FICO"),
+        ("Corning", "GLW"),
+        ("Gartner", "IT"),
+        ("Cognizant", "CTSH"),
+        ("Dell Technologies", "DELL"),
+        ("Monolithic Power Systems", "MPWR"),
+        ("HP", "HPQ"),
+        ("Microchip Technology", "MCHP"),
+        ("Hewlett Packard Enterprise", "HPE"),
+        ("ANSYS", "ANSS"),
+        ("Keysight Technologies", "KEYS"),
+        ("GoDaddy", "GDDY"),
+        ("CDW Corporation", "CDW"),
+        ("NetApp", "NTAP"),
+        ("Tyler Technologies", "TYL"),
+        ("Teledyne Technologies", "TDY"),
+        ("ON Semiconductor", "ON"),
+        ("Western Digital", "WDC"),
+        ("Seagate Technology", "STX"),
+        ("PTC", "PTC"),
+        ("Zebra Technologies", "ZBRA"),
+        ("Teradyne", "TER"),
+        ("Jabil", "JBL"),
+        ("Trimble", "TRMB"),
+        ("First Solar", "FSLR"),
+        ("VeriSign", "VRSN"),
+        ("Super Micro Computer", "SMCI"),
+        ("F5 Networks", "FFIV"),
+        ("Genesis Energy", "GEN"),
+        ("Skyworks Solutions", "SWKS"),
+        ("Akamai Technologies", "AKAM"),
+        ("EPAM Systems", "EPAM"),
+        ("Juniper Networks", "JNPR"),
+        ("Enphase Energy", "ENPH"),
+        ("Xilinx", "XAKH25")
+    ]
 
 def fetch_stock_sector_index_stats(
     ticker: str, index_symbol: str = "SPY"
@@ -317,7 +389,7 @@ def generate_charts(stats: pd.DataFrame, ticker: str, period: str = "10y") -> No
         period: Time period for the chart (e.g. "10y", "5y", "1y", "6m")
     """
     # Create directory if it doesn't exist
-    chart_dir = f"my-docs/charts/{ticker}"
+    chart_dir = f"research_reports/charts/{ticker}"
     os.makedirs(chart_dir, exist_ok=True)
 
     # Trim data to specified period
@@ -388,21 +460,26 @@ def generate_all_charts(ticker: str, periods: list[str] = ["5y", "6m"]) -> None:
             logger.info(f"Generated charts for {ticker} ({period})")
 
 
+
 if __name__ == "__main__":
     
     # Read chart settings from yaml
     with open('stock_analyst.yaml', 'r') as f:
         settings = yaml.safe_load(f)
     
-    ticker = "AAPL"
-    stats = fetch_stock_sector_index_stats(ticker)
-    if stats is not None:
-        # Generate charts based on yaml settings
-        for chart_config in settings:
-            for chart_type, config in chart_config.items():
-                periods = config.get('periods', [])
-                for period in periods:
-                    if chart_type == 'cumulative_returns' or chart_type == 'volatility':
-                        generate_charts(stats, ticker, period=period)
-                    elif chart_type == 'beta_analysis':
-                        generate_beta_chart(stats, period=period)
+    for ticker in name_ticker_list:
+        try:
+            stats = fetch_stock_sector_index_stats(ticker[1])
+            if stats is not None:
+                # Generate charts based on yaml settings
+                for chart_config in settings:
+                    for chart_type, config in chart_config.items():
+                        periods = config.get('periods', [])
+                        for period in periods:
+                            if chart_type == 'cumulative_returns' or chart_type == 'volatility':
+                                generate_charts(stats, ticker[1], period=period)
+                            elif chart_type == 'beta_analysis':
+                                generate_beta_chart(stats, period=period)
+        except:
+            continue
+
