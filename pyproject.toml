@@ -11,6 +11,7 @@ dependencies = [
     "langchain>=0.3.15",
     "langchain-openai>=0.3.2",
     "loguru>=0.7.3",
+    "matplotlib>=3.10.0",
     "lxml-html-clean>=0.4.1",
     "mplfinance>=0.12.10b0",
     "newspaper4k>=0.9.3.1",
@@ -21,6 +22,8 @@ dependencies = [
     "praw>=7.8.1",
     "pypst>=0.6.1",
     "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "scipy>=1.15.1",
     "yfinance>=0.2.52",
 ]
 
@@ -29,7 +32,6 @@ dev = [
     "ipython>=8.31.0",
     "jupyter>=1.1.1",
     "jupyterlab>=4.3.4",
-    "matplotlib>=3.10.0",
     "mypy>=1.14.1",
     "notebook>=7.3.2",
     "pandas-stubs>=2.2.3.241126",
