@@ -2,9 +2,9 @@ import os
 
 import dotenv
 import pandas as pd
-import requests
-import yfinance as yf
-from bs4 import BeautifulSoup
+import requests  # type: ignore
+import yfinance as yf  # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
 from loguru import logger
 from openai import OpenAI
 
@@ -24,12 +24,17 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", ""))
 SECTOR_STATS = load_sector_stats()
 
 
-def main(ticker: str, index_symbol: str = "SPY") -> pd.DataFrame | None:
-    """Main function to analyze a stock.
+def fetch_stock_sector_index_stats(
+    ticker: str, index_symbol: str = "SPY"
+) -> pd.DataFrame | None:
+    """Fetch and analyze statistics for a stock, its sector, and market index.
 
     Args:
         ticker: Stock symbol (e.g. 'AAPL')
         index_symbol: Market index to compare against (default: 'SPY')
+
+    Returns:
+        DataFrame containing combined statistics or None if data retrieval fails
     """
     # Get basic info
     symbol_info = get_symbol_info(ticker)
@@ -190,5 +195,97 @@ class CompanyAnalystAgent:
         return self.report
 
 
+def generate_charts(stats: pd.DataFrame, ticker: str, period: str = "10y") -> None:
+    """Generate and save charts for cumulative returns and volatility.
+
+    Args:
+        stats: DataFrame containing combined statistics
+        ticker: Stock symbol for chart titles and directory naming
+        period: Time period for the chart (e.g. "10y", "5y", "1y", "6m")
+    """
+    import os
+    import pandas as pd
+
+    import matplotlib.pyplot as plt
+
+    # Calculate start date based on period
+    end_date = pd.Timestamp.now()
+    if period.endswith('y'):
+        years = int(period[:-1])
+        start_date = end_date - pd.DateOffset(years=years)
+    elif period.endswith('m'):
+        months = int(period[:-1])
+        start_date = end_date - pd.DateOffset(months=months)
+    else:
+        raise ValueError("Period must be in format 'Xy' or 'Xm' where X is a number")
+
+    # Trim data to specified period
+    stats = stats[stats.index >= start_date]
+
+    # Extract sector and index tickers from column names
+    index_ticker = stats.columns[-1].split("_")[1]  # Last column is for index
+    sector_ticker = next(
+        col.split("_")[1]
+        for col in stats.columns
+        if col.startswith("return_")
+        and col != f"return_{ticker}"
+        and col != f"return_{index_ticker}"
+    )
+
+    # Create directory if it doesn't exist
+    chart_dir = f"my-docs/charts/{ticker}"
+    os.makedirs(chart_dir, exist_ok=True)
+
+    # Set style for better-looking charts
+    plt.style.use("bmh")  # Using a built-in style
+
+    # 1. Cumulative Returns Chart
+    plt.figure(figsize=(12, 6))
+    plt.plot(stats.index, stats[f"return_{ticker}"], label=f"{ticker} Returns")
+    plt.plot(stats.index, stats[f"return_{sector_ticker}"], label="Sector Returns")
+    plt.plot(stats.index, stats[f"return_{index_ticker}"], label="Market Returns")
+    plt.title(
+        f"Cumulative Returns ({period}): {ticker} vs Sector ({sector_ticker}) vs Market ({index_ticker})"
+    )
+    plt.xlabel("Date")
+    plt.ylabel("Cumulative Return")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f"{chart_dir}/cumulative_returns_{period}.jpg")
+    plt.close()
+
+    # 2. Volatility Chart
+    plt.figure(figsize=(12, 6))
+    plt.plot(stats.index, stats[f"vol_{ticker}"], label=f"{ticker} Volatility")
+    plt.plot(stats.index, stats[f"vol_{sector_ticker}"], label="Sector Volatility")
+    plt.plot(stats.index, stats[f"vol_{index_ticker}"], label="Market Volatility")
+    plt.title(
+        f"Volatility ({period}): {ticker} vs Sector ({sector_ticker}) vs Market ({index_ticker})"
+    )
+    plt.xlabel("Date")
+    plt.ylabel("Volatility")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f"{chart_dir}/volatility_{period}.jpg")
+    plt.close()
+
+
+def generate_all_charts(ticker: str, periods: list[str] = ["10y", "3m"]) -> None:
+    """Generate charts for multiple time periods.
+
+    Args:
+        ticker: Stock symbol for chart generation
+        periods: List of time periods to generate charts for (e.g. ["10y", "3m"])
+    """
+    stats = fetch_stock_sector_index_stats(ticker)
+    if stats is not None:
+        for period in periods:
+            generate_charts(stats, ticker, period=period)
+            logger.info(f"Generated charts for {ticker} ({period})")
+
+
 if __name__ == "__main__":
-    df = main("AAPL")
+    ticker = "AAPL"
+    generate_all_charts(ticker)  # Will generate charts for 10y and 3m periods
