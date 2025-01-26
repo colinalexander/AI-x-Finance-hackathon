@@ -65,9 +65,9 @@ def main(ticker: str, index_symbol: str = "SPY") -> pd.DataFrame | None:
     )
 
     # Log results
-    latest = combined_stats.iloc[-1]
-    start_date = combined_stats.index[0].strftime("%Y-%m-%d")
-    end_date = combined_stats.index[-1].strftime("%Y-%m-%d")
+    # latest = combined_stats.iloc[-1]
+    # start_date = combined_stats.index[0].strftime("%Y-%m-%d")
+    # end_date = combined_stats.index[-1].strftime("%Y-%m-%d")
 
     # Show full dataframe
     logger.info("\nDetailed Statistics:")

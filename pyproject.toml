@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "beautifulsoup4>=4.12.3",
+    "gpt-researcher>=0.10.11",
+    "langchain>=0.3.15",
+    "langchain-openai>=0.3.2",
     "loguru>=0.7.3",
     "openai>=1.60.1",
     "pandas>=2.2.3",
