@@ -7,38 +7,13 @@ from datetime import datetime
 
 
 class FinancialDataExtractor:
-    def __init__(self, polygon_api: str):
+    def __init__(self, *polygon_api: str):
         self.polygon_client = RESTClient(polygon_api)
 
-    def extract_ticker_info_yahoo(self, ticker: str, start_date: str = None, end_date: str = None):
-        try:
-            stock = yf.Ticker(ticker)
+    def extract_ticker_info_yahoo(self, tickers: str, start_date: str = None, end_date: str = None):
+        data = yf.download([tickers], start_date, end_date)
 
-            info = stock.info
-            historical_data = stock.history(period="max" if not start_date else None, start=start_date, end=end_date)
-            financials = stock.financials
-            balance_sheet = stock.balance_sheet
-            cashflow = stock.cashflow
-            earnings = stock.earnings
-            recommendations = stock.recommendations
-            sustainability = stock.sustainability
-            major_holders = stock.major_holders
-            institutional_holders = stock.institutional_holders
-
-            return {
-                "basic_info": info,
-                "historical_data": historical_data.to_dict(orient="index"),
-                "financials": financials.to_dict(),
-                "balance_sheet": balance_sheet.to_dict(),
-                "cashflow": cashflow.to_dict(),
-                "earnings": earnings.to_dict(),
-                "recommendations": recommendations,
-                "sustainability": sustainability,
-                "major_holders": major_holders,
-                "institutional_holders": institutional_holders,
-            }
-        except Exception as e:
-            return {"error": str(e)}
+        return data
 
     def extract_ticker_info_polygon(self, ticker: str, start_date: str = None, end_date: str = None):
         try:
@@ -60,22 +35,10 @@ class FinancialDataExtractor:
                     "bid_size": quote.bidsize,
                 },
                 "details": details,
-                "historical_bars": [
-                    {
-                        "timestamp": bar["t"],
-                        "open": bar["o"],
-                        "high": bar["h"],
-                        "low": bar["l"],
-                        "close": bar["c"],
-                        "volume": bar["v"],
-                    }
-                    for bar in aggs
-                ],
             }
         except Exception as e:
             return {"error": str(e)}
-
-
+    
 class RedditDataExtractor:
     def extract_subreddit_data(self, subreddit_name: str, limit: int = 10):
         try:
