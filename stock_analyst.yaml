@@ -1,0 +1,6 @@
+- cumulative_returns:
+    periods: ['10y', '3m']
+- volatility:
+    periods: ['10y', '3m']
+- beta_analysis:
+    periods: ['5y', '6m']
