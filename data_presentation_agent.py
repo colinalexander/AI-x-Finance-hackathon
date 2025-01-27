@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplfinance as mpf
+from tqdm import tqdm
 import yfinance as yf
 
 from gpt_research import custom_report
@@ -24,7 +25,10 @@ import base64
 
 import base64
 import os
-from your_library import Agent, OpenAIChat, DuckDuckGo 
+
+with open(".env", "r") as env_file:
+    openai_api_key = env_file.read()
+    os.environ["OPENAI_API_KEY"] = openai_api_key
 
 class FinancialImageAnalyzer:
     def __init__(self, model_id="gpt-4o", tools=None):
@@ -46,17 +50,12 @@ class FinancialImageAnalyzer:
             raise FileNotFoundError(f"Image file not found: {image_path}")
 
         try:
-            # Read and encode the image
-            with open(image_path, "rb") as img_file:
-                encoded_image = base64.b64encode(img_file.read()).decode("utf-8")
-
             # Get analysis from the agent
-            response = self.agent.print_response(
+            response = self.agent.run(
                 prompt,
-                images=[encoded_image],
-                stream=True,
+                images=[image_path],
             )
-            return response
+            return response.content
         except Exception as e:
             raise RuntimeError(f"Error analyzing image: {e}")
 
@@ -64,14 +63,25 @@ class FinancialImageAnalyzer:
         if not os.path.isdir(image_directory):
             raise NotADirectoryError(f"Directory not found: {image_directory}")
 
+        # One item for each ticker symbol
         results = {}
-        for filename in os.listdir(image_directory):
-            file_path = os.path.join(image_directory, filename)
-            if filename.lower().endswith((".png", ".jpg", ".jpeg", ".bmp")):
+        ticker_symbols = os.listdir(image_directory)
+        for ticker_symbol in tqdm(ticker_symbols):
+            ticker_subdir = os.path.join(image_directory, ticker_symbol)
+            image_files = os.listdir(ticker_subdir)
+            
+            # One item for each image related to a ticker symbol
+            sub_results = {}
+            for image_name in tqdm(image_files):
+                image_path = os.path.join(ticker_subdir, image_name)
                 try:
-                    results[filename] = self.analyze_image(file_path, prompt)
+                    image_analysis = self.analyze_image(image_path, prompt)
+                    sub_results[image_path] = image_analysis
                 except Exception as e:
-                    results[filename] = f"Error: {e}"
+                    sub_results[image_path] = f"Error: {e}"
+
+            results[ticker_symbol] = sub_results
+
         return results
 
 
@@ -548,4 +558,12 @@ def image_analysis_agent(image_directory):
             stream=True,
         )
 
-image_analysis_agent('research_reports/charts/AAPL')
+
+if __name__ == "__main__":
+    # image_analysis_agent('research_reports/charts/AAPL')
+    f = FinancialImageAnalyzer()
+
+    # results = f.analyze_image("research_reports/charts/AAPL/cumulative_returns_10y.jpg")
+    results = f.analyze_images_in_directory("research_reports/charts")
+
+    print(results)
