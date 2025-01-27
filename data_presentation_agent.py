@@ -43,7 +43,7 @@ class FinancialImageAnalyzer:
     def analyze_image(self, image_path, prompt=None):
         if prompt is None:
             prompt = (
-                "As a financial analyst, analyze this graph and provide a detailed explanation of the underlying fundamentals."
+                "As a financial analyst, analyze this graph and provide a very short, concise explanation of the underlying fundamentals."
             )
 
         if not os.path.isfile(image_path):
